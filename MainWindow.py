@@ -52,8 +52,6 @@ class App(QMainWindow):
         self.init_right_part()
         self.init_status_bar()
 
-        # self.test_update_right_part()
-
         self.list_elements = []  # список элементов в центральной области
 
     def init_left_part(self):
@@ -75,6 +73,19 @@ class App(QMainWindow):
         # Создание виджета для кнопок
         button_widget = QWidget()
         button_layout = QVBoxLayout(button_widget)
+
+        # нужно сделать, чтобы все элементы были в одном подокне,
+        # сейчас они размещаются отдельно, чтобы не нужно было
+        # устанавливать размеры для каждого элемнта отдельно
+        self.title.setMinimumWidth(250)
+        self.title.setMaximumWidth(400)
+        self.search_box.setMinimumWidth(250)
+        self.search_box.setMaximumWidth(400)
+        self.scroll_area.setMinimumWidth(250)
+        self.scroll_area.setMaximumWidth(400)
+        button_widget.setMinimumHeight(250)
+        button_widget.setMaximumWidth(400)
+
         button_layout.setContentsMargins(0, 0, 0, 0)  # убирает отступы вокруг макета
         button_layout.setSpacing(0)  # убирает промежутки между кнопками
 
@@ -200,6 +211,7 @@ class App(QMainWindow):
         left_layout.addWidget(self.scroll_area)
 
         self.main_layout.addLayout(left_layout)
+        self.addSeparator()
         button_layout.addStretch()
 
     def load_styles(self):
@@ -283,11 +295,32 @@ class App(QMainWindow):
         self.form_widget = QWidget()
         self.form_layout = QFormLayout(self.form_widget)
 
-        # Добавление элементов в правую часть макета
-        right_layout = QVBoxLayout()
-        right_layout.addWidget(self.form_widget)  # Добавляем виджет с формой
+        # Добавляем метку с описанием
+        self.info_label = QLabel(
+            "Здесь будет отображаться информация о выбранной активности."
+        )
+        self.info_label.setWordWrap(True)
+        self.form_layout.addRow(self.info_label)
 
+        # Устанавливаем минимальный размер для правой части
+        self.form_widget.setMinimumWidth(250)
+        self.form_widget.setMaximumWidth(400)
+
+        right_layout = QVBoxLayout()
+        right_layout.addWidget(self.form_widget)
+
+        # Добавляем разделитель
+        self.addSeparator()
         self.main_layout.addLayout(right_layout)
+
+    def addSeparator(self):
+        """Добавление разделителя между рабочими зонами."""
+        separator = QWidget()
+        separator.setFixedWidth(2)
+        separator.setStyleSheet(
+            "background-color: #cccccc;"
+        )  # серый цвет для разделителя
+        self.main_layout.addWidget(separator)
 
     def init_tools_panel(self):
         """Инициализация панели инструментов"""
@@ -311,8 +344,7 @@ class App(QMainWindow):
         if not func:
             self.status_bar.showMessage("Функция не задана для данного элемента")
             return
-        else:
-            self.status_bar.showMessage("Свойства загружены")
+
         signature = inspect.signature(func)
 
         while self.form_layout.count():
@@ -324,16 +356,6 @@ class App(QMainWindow):
             label = QLabel(name)
             input_field = QLineEdit()
             self.form_layout.addRow(label, input_field)
-
-    def test_update_right_part(self):
-        """Тестовый метод для имитации получения данных"""
-        # test_dict = {"Лексема": "", "Выражение": ""}
-
-        def foo(name: str, age: int):
-            print(f"name: {name}")
-
-        self.update_right_part(foo)
-        # return test_dict
 
 
 class Element(QWidget):
