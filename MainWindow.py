@@ -1,15 +1,30 @@
 import sys
-from PyQt5.QtWidgets import (QApplication, QWidget, QPushButton,
-                             QVBoxLayout, QHBoxLayout, QListWidget,
-                             QLineEdit, QScrollArea, QTextEdit,
-                             QComboBox, QLabel)
+import inspect
+from PyQt5.QtWidgets import (
+    QApplication,
+    QWidget,
+    QPushButton,
+    QVBoxLayout,
+    QHBoxLayout,
+    QListWidget,
+    QLineEdit,
+    QScrollArea,
+    QTextEdit,
+    QComboBox,
+    QLabel,
+    QToolBar,
+    QMainWindow,
+    QStatusBar,
+    QFormLayout,
+)
 from PyQt5.QtCore import Qt
-# from DataTableLib import *
-# from EmailLib import *
-# from MessengerLib import *
-# from RDPLib import *
+from DataTableLib import *
+from EmailLib import *
+from MessengerLib import *
+from RDPLib import *
 
-class App(QWidget):
+
+class App(QMainWindow):
     def __init__(self):
         super().__init__()
 
@@ -17,14 +32,21 @@ class App(QWidget):
         self.setWindowTitle("GUI")
         self.setGeometry(100, 100, 900, 600)
 
+        # Создание центрального виджета
+        central_widget = QWidget()
+        self.setCentralWidget(central_widget)
+
         # Основной макет
-        self.main_layout = QHBoxLayout()
-        self.setLayout(self.main_layout)
+        self.main_layout = QHBoxLayout(central_widget)
 
         # Инициализация частей интерфейса
+        self.init_tools_panel()
         self.init_left_part()
         self.init_central_part()
         self.init_right_part()
+        self.init_status_bar()
+
+        self.test_update_right_part()
 
     def init_left_part(self):
         """Инициализация левой части интерфейса"""
@@ -38,13 +60,15 @@ class App(QWidget):
         # Создание области прокрутки
         self.scroll_area = QScrollArea()
         self.scroll_area.setWidgetResizable(True)
-        self.scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn) # вертикальная полоса прокрутки всегда видимая
+        self.scroll_area.setVerticalScrollBarPolicy(
+            Qt.ScrollBarAlwaysOn
+        )  # вертикальная полоса прокрутки всегда видимая
 
         # Создание виджета для кнопок
         button_widget = QWidget()
         button_layout = QVBoxLayout(button_widget)
         button_layout.setContentsMargins(0, 0, 0, 0)  # убирает отступы вокруг макета
-        button_layout.setSpacing(0) # убирает промежутки между кнопками
+        button_layout.setSpacing(0)  # убирает промежутки между кнопками
 
         # Создание кнопок-папок
         self.button_DataTableLib = QPushButton("Таблица")
@@ -53,24 +77,28 @@ class App(QWidget):
 
         # Список элементов для кнопки "Таблица"
         self.DataTableLib_list = QListWidget()
-        self.DataTableLib_list.addItems([
-            "Получить значение из таблицы",
-            "Заменить значение из таблицы",
-            "Добавить столбец к таблице",
-            "Добавить строчку к таблице",
-            "Удалить все строчки из таблицы",
-            "Удалить строку из таблицы",
-            "Удалить столбец из таблицы",
-            "Отсортировать таблицу по столбцу",
-            "Соединить таблицы",
-            "Найти строки по SQL-запросу",
-            "Проверить существование значения",
-            "Найти строку"
-        ])
+        self.DataTableLib_list.addItems(
+            [
+                "Получить значение из таблицы",
+                "Заменить значение из таблицы",
+                "Добавить столбец к таблице",
+                "Добавить строчку к таблице",
+                "Удалить все строчки из таблицы",
+                "Удалить строку из таблицы",
+                "Удалить столбец из таблицы",
+                "Отсортировать таблицу по столбцу",
+                "Соединить таблицы",
+                "Найти строки по SQL-запросу",
+                "Проверить существование значения",
+                "Найти строку",
+            ]
+        )
         # Изначально скрываем список активностей
         self.DataTableLib_list.setVisible(False)
 
-        button_layout.addWidget(self.DataTableLib_list)  # Добавляем список активностей под кнопкой
+        button_layout.addWidget(
+            self.DataTableLib_list
+        )  # Добавляем список активностей под кнопкой
 
         button_EmailLib = QPushButton("Почта")
         # button_EmailLib.clicked.connect()
@@ -102,25 +130,70 @@ class App(QWidget):
 
     def init_central_part(self):
         """Инициализация центральной части интерфейса"""
-        self.central_scroll_area = QScrollArea()
-        self.central_scroll_area.setWidgetResizable(True)
+        self.text = QTextEdit()
+        # Добавление элементов в правую часть макета
+        central_layout = QVBoxLayout()
+        central_layout.addWidget(self.text)
 
-        # Добавление элементов в центральную часть макета
-        self.central_widget = QWidget()
-        self.central_layout = QVBoxLayout(self.central_widget)
-
-        self.central_scroll_area.setWidget(self.central_widget)
-        self.main_layout.addWidget(self.central_scroll_area)
+        self.main_layout.addLayout(central_layout)
 
     def init_right_part(self):
         """Инициализация правой части интерфейса"""
-        self.text = QTextEdit()
+        self.form_widget = QWidget()
+        self.form_layout = QFormLayout(self.form_widget)
 
         # Добавление элементов в правую часть макета
         right_layout = QVBoxLayout()
-        right_layout.addWidget(self.text)
+        right_layout.addWidget(self.form_widget)  # Добавляем виджет с формой
 
         self.main_layout.addLayout(right_layout)
+
+    def init_tools_panel(self):
+        """Инициализация панели инструментов"""
+        toolbar = QToolBar("Main Toolbar")
+        self.addToolBar(toolbar)
+
+        button_action = QPushButton("Пример кнопки")
+        button_action.clicked.connect(self.example_action)
+        toolbar.addWidget(button_action)
+
+    def init_status_bar(self):
+        """Инициализация статус-бара"""
+        self.status_bar = QStatusBar()
+        self.setStatusBar(self.status_bar)
+
+    def example_action(self):
+        """Пример действия для кнопки на панели инструментов"""
+        self.status_bar.showMessage("Кнопка на панели инструментов нажата!")
+
+    def update_right_part(self, func):
+        """
+        Обновляет правую часть интерфейса при выборе элемента
+
+        func: функция, передаваемая в качестве параметра
+
+        """
+        signature = inspect.signature(func)
+
+        while self.form_layout.count():
+            child = self.form_layout.takeAt(0)
+            if child.widget():
+                child.widget().deleteLater()
+
+        for name, param in signature.parameters.items():
+            label = QLabel(name)
+            input_field = QLineEdit()
+            self.form_layout.addRow(label, input_field)
+
+    def test_update_right_part(self):
+        """Тестовый метод для имитации получения данных"""
+        # test_dict = {"Лексема": "", "Выражение": ""}
+
+        def foo(name: str, age: int):
+            print(f"name: {name}")
+
+        self.update_right_part(foo)
+        # return test_dict
 
 
 class Element(QWidget):
@@ -130,8 +203,10 @@ class Element(QWidget):
         self.function = function
         self.arguments = arguments
 
-    def execute(self):
+    def perform(self):
         return self.function(*self.arguments)
+
+
 list_elements = []
 """
 DataTableLib: 
