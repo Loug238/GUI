@@ -16,13 +16,14 @@ from PyQt5.QtWidgets import (
     QMainWindow,
     QStatusBar,
     QFormLayout,
+    QMenu
 )
 from PyQt5.QtCore import Qt
-# from DataTableLib import *
-# from EmailLib import *
-# from MessengerLib import *
-# from RDPLib import *
-
+from Activities_list import *
+from DataTableLib import *
+from EmailLib import *
+from MessengerLib import *
+from RDPLib import *
 
 class App(QMainWindow):
     def __init__(self):
@@ -49,6 +50,7 @@ class App(QMainWindow):
         self.test_update_right_part()
 
         self.list_elements = [] # список элементов в центральной области
+
     def init_left_part(self):
         """Инициализация левой части интерфейса"""
         # Заголовок
@@ -73,7 +75,7 @@ class App(QMainWindow):
 
         # Создание кнопок-папок
         self.button_DataTableLib = QPushButton("Таблица")
-        self.button_DataTableLib.clicked.connect(self.toggle_DataTableLib)
+        self.button_DataTableLib.clicked.connect(lambda: self.toggle_list(self.DataTableLib_list))
         button_layout.addWidget(self.button_DataTableLib)
 
         # Список элементов для кнопки "Таблица"
@@ -91,30 +93,89 @@ class App(QMainWindow):
                 "Соединить таблицы",
                 "Найти строки по SQL-запросу",
                 "Проверить существование значения",
-                "Найти строку",
-            ]
-        )
+                "Найти строку"
+            ])
+
         # Обработка двойного клика
         self.DataTableLib_list.itemDoubleClicked.connect(self.add_element_to_central)
 
         # Изначально скрываем список активностей
         self.DataTableLib_list.setVisible(False)
 
-        button_layout.addWidget(
-            self.DataTableLib_list
-        )  # Добавляем список активностей под кнопкой
+        # Добавляем список активностей под кнопкой
+        button_layout.addWidget(self.DataTableLib_list)
 
         button_EmailLib = QPushButton("Почта")
-        # button_EmailLib.clicked.connect()
+        button_EmailLib.clicked.connect(lambda: self.toggle_list(self.EmailLib_list))
         button_layout.addWidget(button_EmailLib)
 
+        # Список элементов для кнопки "Почта"
+        self.EmailLib_list = QListWidget()
+        self.EmailLib_list.addItems(
+            [
+                "Выгрузить сообщение из почты",
+                "Вывести письма в консоль",
+                "Вывести письма в файл",
+                "Отправить письмо",
+                "Перенести письма в папку на почте"
+            ])
+        # Обработка двойного клика
+        self.EmailLib_list.itemDoubleClicked.connect(self.add_element_to_central)
+
+        # Изначально скрываем список активностей
+        self.EmailLib_list.setVisible(False)
+
+        # Добавляем список активностей под кнопкой
+        button_layout.addWidget(self.EmailLib_list)
+
         button_MessengerLib = QPushButton("Telegram")
-        # button_MessengerLib.clicked.connect()
+        button_MessengerLib.clicked.connect(lambda: self.toggle_list(self.MessengerLib_list))
         button_layout.addWidget(button_MessengerLib)
 
+        # Список элементов для кнопки "Telegram"
+        self.MessengerLib_list = QListWidget()
+        self.MessengerLib_list.addItems(
+            [
+                "Отправить контакт в чат",
+                "Скачать файл из чата",
+                "Отправить файл в чат",
+                "Отправить сообщение в чат",
+                "Отправить фото в чат"
+            ])
+        # Обработка двойного клика
+        self.MessengerLib_list.itemDoubleClicked.connect(self.add_element_to_central)
+
+        # Изначально скрываем список активностей
+        self.MessengerLib_list.setVisible(False)
+
+        # Добавляем список активностей под кнопкой
+        button_layout.addWidget(self.MessengerLib_list)
+
         button_RDPLib = QPushButton("RDP")
-        # button_RDPLib.clicked.connect()
+        button_RDPLib.clicked.connect(lambda: self.toggle_list(self.RDPLib_list))
         button_layout.addWidget(button_RDPLib)
+
+        # Список элементов для кнопки "RDP"
+        self.RDPLib_list = QListWidget()
+        self.RDPLib_list.addItems(
+            [
+                "Кликнуть по элементу",
+                "Проверить существование элемента",
+                "Ввести текст в элемент",
+                "Поиск элемента",
+                "Считать текст из элемента",
+                "Ожидать появление/сокрытие элемента",
+                "Кликнуть по изображению",
+                "Кликнуть по тексту на экране"
+            ])
+        # Обработка двойного клика
+        self.RDPLib_list.itemDoubleClicked.connect(self.add_element_to_central)
+
+        # Изначально скрываем список активностей
+        self.RDPLib_list.setVisible(False)
+
+        # Добавляем список активностей под кнопкой
+        button_layout.addWidget(self.RDPLib_list)
 
         # Добавление виджета кнопок в область прокрутки
         self.scroll_area.setWidget(button_widget)
@@ -127,10 +188,16 @@ class App(QMainWindow):
 
         self.main_layout.addLayout(left_layout)
 
-    def toggle_DataTableLib(self):
-        """Переключение видимости опций таблицы"""
-        current_visibility = self.DataTableLib_list.isVisible()
-        self.DataTableLib_list.setVisible(not current_visibility)
+    # def toggle_DataTableLib(self):
+    #     """Переключение видимости опций таблицы"""
+    #     current_visibility = self.DataTableLib_list.isVisible()
+    #     self.DataTableLib_list.setVisible(not current_visibility)
+
+    def toggle_list(self, list_widget):
+        """Переключение видимости списка"""
+        current_visibility = list_widget.isVisible()
+        list_widget.setVisible(not current_visibility)
+
 
     def init_central_part(self):
         """Инициализация центральной части интерфейса"""
@@ -153,14 +220,33 @@ class App(QMainWindow):
         element_arguments = []
 
         new_element = Element(len(self.list_elements), element_name,
-                              element_function,element_arguments)
+                              element_function, element_arguments)
 
         # Добавление элемента в список
         self.list_elements.append(new_element)
 
         # Создание виджета для отображения элемента в центральной части
         element_widget = QLabel(element_name)
+
+        # Подключение контекстного меню к виджету
+        element_widget.setContextMenuPolicy(Qt.CustomContextMenu)
+        element_widget.customContextMenuRequested.connect(lambda pos: self.show_context_menu(pos, new_element, element_widget))
+
         self.central_layout.addWidget(element_widget)
+
+    def show_context_menu(self, pos, element, widget):
+        """Появление контекстного меню для блоков в центральной области"""
+        context_menu = QMenu(self)
+
+        delete_action = context_menu.addAction("Удалить")
+
+        action = context_menu.exec_(widget.mapToGlobal(pos))
+
+        if action == delete_action:
+            # Удаляем элемент из списка и виджета
+            if element in self.list_elements:
+                self.list_elements.remove(element)
+                widget.deleteLater()  # Удаляем виджет из центральной части
 
     def init_right_part(self):
         """Инициализация правой части интерфейса"""
