@@ -4,10 +4,10 @@ from PyQt5.QtWidgets import (QApplication, QWidget, QPushButton,
                              QLineEdit, QScrollArea, QTextEdit,
                              QComboBox, QLabel)
 from PyQt5.QtCore import Qt
-from DataTableLib import *
-from EmailLib import *
-from MessengerLib import *
-from RDPLib import *
+# from DataTableLib import *
+# from EmailLib import *
+# from MessengerLib import *
+# from RDPLib import *
 
 class App(QWidget):
     def __init__(self):
@@ -102,16 +102,20 @@ class App(QWidget):
 
     def init_central_part(self):
         """Инициализация центральной части интерфейса"""
-        self.text = QTextEdit()
-        # Добавление элементов в правую часть макета
-        central_layout = QVBoxLayout()
-        central_layout.addWidget(self.text)
+        self.central_scroll_area = QScrollArea()
+        self.central_scroll_area.setWidgetResizable(True)
 
-        self.main_layout.addLayout(central_layout)
+        # Добавление элементов в центральную часть макета
+        self.central_widget = QWidget()
+        self.central_layout = QVBoxLayout(self.central_widget)
+
+        self.central_scroll_area.setWidget(self.central_widget)
+        self.main_layout.addWidget(self.central_scroll_area)
 
     def init_right_part(self):
         """Инициализация правой части интерфейса"""
         self.text = QTextEdit()
+
         # Добавление элементов в правую часть макета
         right_layout = QVBoxLayout()
         right_layout.addWidget(self.text)
@@ -126,7 +130,7 @@ class Element(QWidget):
         self.function = function
         self.arguments = arguments
 
-    def perform(self):
+    def execute(self):
         return self.function(*self.arguments)
 list_elements = []
 """
