@@ -122,6 +122,7 @@ class App(QMainWindow):
         left_layout.addWidget(self.scroll_area)
 
         self.main_layout.addLayout(left_layout)
+        button_layout.addStretch()
 
     def load_styles(self):
         """Загрузка стилей из файла."""
