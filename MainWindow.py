@@ -27,7 +27,7 @@ from RDPLib import *
 class App(QMainWindow):
     def __init__(self):
         super().__init__()
-
+        self.load_styles()
         # Настройки всплывающего окна
         self.setWindowTitle("GUI")
         self.setGeometry(100, 100, 900, 600)
@@ -122,6 +122,11 @@ class App(QMainWindow):
         left_layout.addWidget(self.scroll_area)
 
         self.main_layout.addLayout(left_layout)
+
+    def load_styles(self):
+        """Загрузка стилей из файла."""
+        with open("static\\CSS\\style.css", "r") as style_file:
+            self.setStyleSheet(style_file.read())
 
     def toggle_DataTableLib(self):
         """Переключение видимости опций таблицы"""
