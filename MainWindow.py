@@ -1,4 +1,5 @@
 import sys
+import inspect
 from PyQt5.QtWidgets import (
     QApplication,
     QWidget,
@@ -165,24 +166,34 @@ class App(QMainWindow):
         """Пример действия для кнопки на панели инструментов"""
         self.status_bar.showMessage("Кнопка на панели инструментов нажата!")
 
-    def update_right_part(self, item: dict):
-        """Обновляет правую часть интерфейса при выборе элемента"""
+    def update_right_part(self, func):
+        """
+        Обновляет правую часть интерфейса при выборе элемента
+
+        func: функция, передаваемая в качестве параметра
+
+        """
+        signature = inspect.signature(func)
+
         while self.form_layout.count():
             child = self.form_layout.takeAt(0)
             if child.widget():
                 child.widget().deleteLater()
 
-        if len(item):
-            for key in item:
-                label = QLabel(key)
-                input_field = QLineEdit()
-                self.form_layout.addRow(label, input_field)
+        for name, param in signature.parameters.items():
+            label = QLabel(name)
+            input_field = QLineEdit()
+            self.form_layout.addRow(label, input_field)
 
     def test_update_right_part(self):
         """Тестовый метод для имитации получения данных"""
-        test_dict = {"Лексема": "", "Выражение": ""}
-        self.update_right_part(test_dict)
-        return test_dict
+        # test_dict = {"Лексема": "", "Выражение": ""}
+
+        def foo(name: str, age: int):
+            print(f"name: {name}")
+
+        self.update_right_part(foo)
+        # return test_dict
 
 
 class Element(QWidget):
