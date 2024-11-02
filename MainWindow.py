@@ -18,10 +18,10 @@ from PyQt5.QtWidgets import (
     QFormLayout,
 )
 from PyQt5.QtCore import Qt
-from DataTableLib import *
-from EmailLib import *
-from MessengerLib import *
-from RDPLib import *
+# from DataTableLib import *
+# from EmailLib import *
+# from MessengerLib import *
+# from RDPLib import *
 
 
 class App(QMainWindow):
@@ -48,6 +48,7 @@ class App(QMainWindow):
 
         self.test_update_right_part()
 
+        self.list_elements = [] # список элементов в центральной области
     def init_left_part(self):
         """Инициализация левой части интерфейса"""
         # Заголовок
@@ -93,6 +94,9 @@ class App(QMainWindow):
                 "Найти строку",
             ]
         )
+        # Обработка двойного клика
+        self.DataTableLib_list.itemDoubleClicked.connect(self.add_element_to_central)
+
         # Изначально скрываем список активностей
         self.DataTableLib_list.setVisible(False)
 
@@ -130,12 +134,33 @@ class App(QMainWindow):
 
     def init_central_part(self):
         """Инициализация центральной части интерфейса"""
-        self.text = QTextEdit()
-        # Добавление элементов в правую часть макета
-        central_layout = QVBoxLayout()
-        central_layout.addWidget(self.text)
+        self.central_scroll_area = QScrollArea()
+        self.central_scroll_area.setWidgetResizable(True)
 
-        self.main_layout.addLayout(central_layout)
+        self.central_widget = QWidget()
+        self.central_layout = QVBoxLayout(self.central_widget)
+
+        self.central_scroll_area.setWidget(self.central_widget)
+        self.main_layout.addWidget(self.central_scroll_area)
+
+    def add_element_to_central(self, item):
+        """Добавление элемента в центральную часть"""
+        # Создание нового элемента
+        element_name = item.text()
+
+        # Передача функции и аргументов
+        element_function = []
+        element_arguments = []
+
+        new_element = Element(len(self.list_elements), element_name,
+                              element_function,element_arguments)
+
+        # Добавление элемента в список
+        self.list_elements.append(new_element)
+
+        # Создание виджета для отображения элемента в центральной части
+        element_widget = QLabel(element_name)
+        self.central_layout.addWidget(element_widget)
 
     def init_right_part(self):
         """Инициализация правой части интерфейса"""
@@ -207,7 +232,7 @@ class Element(QWidget):
         return self.function(*self.arguments)
 
 
-list_elements = []
+
 """
 DataTableLib: 
 ["Получить значение из таблицы", "Заменить значение из таблицы", 
