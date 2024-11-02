@@ -1,39 +1,39 @@
 /* styles.qss */
 QWidget {
-    background-color: #f0f0f0;
-    /* светлый фон */
+    background-color: #f7f7f7;
+    /* светло-серый фон */
     color: #333333;
-    /* текст серый */
+    /* серый текст */
     font-family: Arial, sans-serif;
 }
 
 QMainWindow {
     background-color: #ffffff;
-    /* фон главного окна белый */
+    /* белый фон главного окна */
 }
 
 QToolBar {
-    background-color: #eeeeee;
-    /* фон панели инструментов серый */
-    border: 1px solid #cccccc;
-    /* рамка */
+    background-color: #e0e0e0;
+    /* светло-серый фон панели инструментов */
+    border: 1px solid #d0d0d0;
+    /* светло-серая рамка */
 }
 
 QPushButton {
-    background-color: #ffffff;
-    /* белая кнопка */
+    background-color: #f0f0f0;
+    /* светло-серая кнопка */
     color: #333333;
     /* текст кнопки серый */
-    border: 1px solid #cccccc;
-    /* рамка */
+    border: 1px solid #c0c0c0;
+    /* светло-серая рамка */
     padding: 5px 10px;
     /* отступы */
-    border-radius: 5px;
+    border-radius: 3px;
     /* скругленные углы */
 }
 
 QPushButton:hover {
-    background-color: #dddddd;
+    background-color: #e0e0e0;
     /* цвет при наведении */
 }
 
@@ -42,8 +42,8 @@ QLineEdit {
     /* белое поле ввода */
     color: #333333;
     /* текст в поле ввода серый */
-    border: 1px solid #cccccc;
-    /* рамка */
+    border: 1px solid #d0d0d0;
+    /* светло-серая рамка */
     padding: 5px;
     /* отступы */
 }
@@ -53,8 +53,8 @@ QTextEdit {
     /* белый фон для текстового редактора */
     color: #333333;
     /* текст серый */
-    border: 1px solid #cccccc;
-    /* рамка */
+    border: 1px solid #d0d0d0;
+    /* светло-серая рамка */
     padding: 5px;
     /* отступы */
 }
@@ -65,31 +65,66 @@ QLabel {
 }
 
 QScrollArea {
-    border: none;
-    /* убираем рамку */
+    border: 1px solid #d0d0d0;
+    /* светло-серая рамка для области прокрутки */
 }
 
 QListWidget {
     background-color: #ffffff;
     /* белый фон для списка */
-    border: 1px solid #cccccc;
-    /* рамка */
+    border: 1px solid #d0d0d0;
+    /* светло-серая рамка */
     color: #333333;
     /* текст серый */
 }
 
 QListWidget:item:hover {
-    background-color: #eeeeee;
+    background-color: #e7e7e7;
     /* цвет при наведении на элемент списка */
 }
 
 QComboBox {
     background-color: #ffffff;
     /* белый фон для выпадающего списка */
-    border: 1px solid #cccccc;
-    /* рамка */
+    border: 1px solid #d0d0d0;
+    /* светло-серая рамка */
     padding: 5px;
     /* отступы */
     color: #333333;
     /* текст серый */
+}
+
+/* Дополнительные настройки для более явного разделения областей */
+QWidget#leftPart,
+QWidget#centralPart,
+QWidget#rightPart {
+    min-width: 200px;
+    /* фиксированная минимальная ширина для каждой области */
+    min-height: 100px;
+    /* фиксированная минимальная высота для каждой области */
+    margin: 5px;
+    /* отступы между областями */
+    border-radius: 5px;
+    /* скругленные углы для всех областей */
+}
+
+QWidget#leftPart {
+    background-color: #f9f9f9;
+    /* светло-серый фон для левой части */
+    border: 1px solid #d0d0d0;
+    /* светло-серая рамка */
+}
+
+QWidget#centralPart {
+    background-color: #ffffff;
+    /* белый фон для центральной части */
+    border: 1px solid #d0d0d0;
+    /* светло-серая рамка */
+}
+
+QWidget#rightPart {
+    background-color: #f9f9f9;
+    /* светло-серый фон для правой части */
+    border: 1px solid #d0d0d0;
+    /* светло-серая рамка */
 }
