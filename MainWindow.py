@@ -17,20 +17,23 @@ from PyQt5.QtWidgets import (
     QStatusBar,
     QFormLayout,
     QMenu,
-    QFrame,
-    QSizePolicy
 )
-from PyQt5.QtCore import Qt
-from Activities_list import *
+
+import Activities_list
+
+from PyQt5.QtCore import Qt, pyqtSignal
+
+# from Activities_list import activities_list
 from DataTableLib import *
 from EmailLib import *
 from MessengerLib import *
 from RDPLib import *
 
+
 class App(QMainWindow):
     def __init__(self):
         super().__init__()
-
+        self.load_styles()
         # Настройки всплывающего окна
         self.setWindowTitle("GUI")
         self.setGeometry(100, 100, 900, 600)
@@ -49,9 +52,7 @@ class App(QMainWindow):
         self.init_right_part()
         self.init_status_bar()
 
-        self.test_update_right_part()
-
-        self.list_elements = [] # список элементов в центральной области
+        self.list_elements = []  # список элементов в центральной области
 
     def init_left_part(self):
         """Инициализация левой части интерфейса"""
@@ -72,12 +73,27 @@ class App(QMainWindow):
         # Создание виджета для кнопок
         button_widget = QWidget()
         button_layout = QVBoxLayout(button_widget)
+
+        # нужно сделать, чтобы все элементы были в одном подокне,
+        # сейчас они размещаются отдельно, чтобы не нужно было
+        # устанавливать размеры для каждого элемнта отдельно
+        self.title.setMinimumWidth(250)
+        self.title.setMaximumWidth(400)
+        self.search_box.setMinimumWidth(250)
+        self.search_box.setMaximumWidth(400)
+        self.scroll_area.setMinimumWidth(250)
+        self.scroll_area.setMaximumWidth(400)
+        button_widget.setMinimumHeight(250)
+        button_widget.setMaximumWidth(400)
+
         button_layout.setContentsMargins(0, 0, 0, 0)  # убирает отступы вокруг макета
         button_layout.setSpacing(0)  # убирает промежутки между кнопками
 
         # Создание кнопок-папок
         self.button_DataTableLib = QPushButton("Таблица")
-        self.button_DataTableLib.clicked.connect(lambda: self.toggle_list(self.DataTableLib_list))
+        self.button_DataTableLib.clicked.connect(
+            lambda: self.toggle_list(self.DataTableLib_list)
+        )
         button_layout.addWidget(self.button_DataTableLib)
 
         # Список элементов для кнопки "Таблица"
@@ -95,8 +111,9 @@ class App(QMainWindow):
                 "Соединить таблицы",
                 "Найти строки по SQL-запросу",
                 "Проверить существование значения",
-                "Найти строку"
-            ])
+                "Найти строку",
+            ]
+        )
 
         # Обработка двойного клика
         self.DataTableLib_list.itemDoubleClicked.connect(self.add_element_to_central)
@@ -119,8 +136,9 @@ class App(QMainWindow):
                 "Вывести письма в консоль",
                 "Вывести письма в файл",
                 "Отправить письмо",
-                "Перенести письма в папку на почте"
-            ])
+                "Перенести письма в папку на почте",
+            ]
+        )
         # Обработка двойного клика
         self.EmailLib_list.itemDoubleClicked.connect(self.add_element_to_central)
 
@@ -131,7 +149,9 @@ class App(QMainWindow):
         button_layout.addWidget(self.EmailLib_list)
 
         button_MessengerLib = QPushButton("Telegram")
-        button_MessengerLib.clicked.connect(lambda: self.toggle_list(self.MessengerLib_list))
+        button_MessengerLib.clicked.connect(
+            lambda: self.toggle_list(self.MessengerLib_list)
+        )
         button_layout.addWidget(button_MessengerLib)
 
         # Список элементов для кнопки "Telegram"
@@ -142,8 +162,9 @@ class App(QMainWindow):
                 "Скачать файл из чата",
                 "Отправить файл в чат",
                 "Отправить сообщение в чат",
-                "Отправить фото в чат"
-            ])
+                "Отправить фото в чат",
+            ]
+        )
         # Обработка двойного клика
         self.MessengerLib_list.itemDoubleClicked.connect(self.add_element_to_central)
 
@@ -168,8 +189,9 @@ class App(QMainWindow):
                 "Считать текст из элемента",
                 "Ожидать появление/сокрытие элемента",
                 "Кликнуть по изображению",
-                "Кликнуть по тексту на экране"
-            ])
+                "Кликнуть по тексту на экране",
+            ]
+        )
         # Обработка двойного клика
         self.RDPLib_list.itemDoubleClicked.connect(self.add_element_to_central)
 
@@ -178,7 +200,6 @@ class App(QMainWindow):
 
         # Добавляем список активностей под кнопкой
         button_layout.addWidget(self.RDPLib_list)
-        button_layout.addStretch()
 
         # Добавление виджета кнопок в область прокрутки
         self.scroll_area.setWidget(button_widget)
@@ -190,13 +211,23 @@ class App(QMainWindow):
         left_layout.addWidget(self.scroll_area)
 
         self.main_layout.addLayout(left_layout)
+        self.addSeparator()
+        button_layout.addStretch()
 
+    def load_styles(self):
+        """Загрузка стилей из файла."""
+        with open("static\\CSS\\style.css", "r") as style_file:
+            self.setStyleSheet(style_file.read())
+
+    # def toggle_DataTableLib(self):
+    #     """Переключение видимости опций таблицы"""
+    #     current_visibility = self.DataTableLib_list.isVisible()
+    #     self.DataTableLib_list.setVisible(not current_visibility)
 
     def toggle_list(self, list_widget):
-        """Переключение видимости активностей в папке"""
+        """Переключение видимости списка"""
         current_visibility = list_widget.isVisible()
         list_widget.setVisible(not current_visibility)
-
 
     def init_central_part(self):
         """Инициализация центральной части интерфейса"""
@@ -213,23 +244,35 @@ class App(QMainWindow):
         """Добавление элемента в центральную часть"""
         # Создание нового элемента
         element_name = item.text()
-
-        # Передача функции и аргументов
-        element_function = []
+        element_function = Activities_list.activities_list.get(element_name, None)
         element_arguments = []
 
-        new_element = Element(len(self.list_elements), element_name,
-                              element_function, element_arguments)
+        if not element_function:
+            self.status_bar.showMessage(f"Функция для '{element_name}' не найдена.")
+            return
+        else:
+            self.status_bar.showMessage(
+                f"Функция для '{element_name}' найдена: {element_function}."
+            )
 
-        # Добавление элемента в список
+        # Создаём элемент и подключаем его сигнал
+        new_element = Element(
+            len(self.list_elements), element_name, element_function, element_arguments
+        )
+        new_element.clicked.connect(self.update_right_part)
         self.list_elements.append(new_element)
 
-        # Создание виджета для отображения элемента в центральной части
-        element_widget = QLabel(element_name)
+        # Используем QPushButton вместо QLabel
+        element_widget = QPushButton(element_name)
+        element_widget.clicked.connect(
+            lambda: new_element.clicked.emit(element_function)
+        )
 
-        # Подключение контекстного меню к виджету
+        # Контекстное меню для кнопки
         element_widget.setContextMenuPolicy(Qt.CustomContextMenu)
-        element_widget.customContextMenuRequested.connect(lambda pos: self.show_context_menu(pos, new_element, element_widget))
+        element_widget.customContextMenuRequested.connect(
+            lambda pos: self.show_context_menu(pos, new_element, element_widget)
+        )
 
         self.central_layout.addWidget(element_widget)
 
@@ -252,11 +295,32 @@ class App(QMainWindow):
         self.form_widget = QWidget()
         self.form_layout = QFormLayout(self.form_widget)
 
-        # Добавление элементов в правую часть макета
-        right_layout = QVBoxLayout()
-        right_layout.addWidget(self.form_widget)  # Добавляем виджет с формой
+        # Добавляем метку с описанием
+        self.info_label = QLabel(
+            "Здесь будет отображаться информация о выбранной активности."
+        )
+        self.info_label.setWordWrap(True)
+        self.form_layout.addRow(self.info_label)
 
+        # Устанавливаем минимальный размер для правой части
+        self.form_widget.setMinimumWidth(250)
+        self.form_widget.setMaximumWidth(400)
+
+        right_layout = QVBoxLayout()
+        right_layout.addWidget(self.form_widget)
+
+        # Добавляем разделитель
+        self.addSeparator()
         self.main_layout.addLayout(right_layout)
+
+    def addSeparator(self):
+        """Добавление разделителя между рабочими зонами."""
+        separator = QWidget()
+        separator.setFixedWidth(2)
+        separator.setStyleSheet(
+            "background-color: #cccccc;"
+        )  # серый цвет для разделителя
+        self.main_layout.addWidget(separator)
 
     def init_tools_panel(self):
         """Инициализация панели инструментов"""
@@ -277,12 +341,10 @@ class App(QMainWindow):
         self.status_bar.showMessage("Кнопка на панели инструментов нажата!")
 
     def update_right_part(self, func):
-        """
-        Обновляет правую часть интерфейса при выборе элемента
+        if not func:
+            self.status_bar.showMessage("Функция не задана для данного элемента")
+            return
 
-        func: функция, передаваемая в качестве параметра
-
-        """
         signature = inspect.signature(func)
 
         while self.form_layout.count():
@@ -295,25 +357,43 @@ class App(QMainWindow):
             input_field = QLineEdit()
             self.form_layout.addRow(label, input_field)
 
-    def test_update_right_part(self):
-        """Тестовый метод для имитации получения данных"""
-        # test_dict = {"Лексема": "", "Выражение": ""}
-
-        def foo(name: str, age: int):
-            print(f"name: {name}")
-
-        self.update_right_part(foo)
-        # return test_dict
-
 
 class Element(QWidget):
+    clicked = pyqtSignal(object)  # определяем сигнал, который принимает один объект
+
     def __init__(self, element_id, name, function, arguments):
+        super().__init__()
         self.id = element_id
         self.name = name
         self.function = function
         self.arguments = arguments
 
+    def mousePressEvent(self, event):
+        """Обработка клика на элемент"""
+        # Испускаем сигнал, передавая self.function
+        self.clicked.emit(self.function)
+
     def perform(self):
         return self.function(*self.arguments)
 
 
+"""
+DataTableLib: 
+["Получить значение из таблицы", "Заменить значение из таблицы", 
+"Добавить столбец к таблице", "Добавить строчку к таблице", "Удалить все строчки из таблицы", 
+"Удалить строку из таблицы", Удалить столбец из таблицы, "Отсортировать таблицу по столбцу",
+"Соединить таблицы", "Найти строки по SQL-запросу", "Проверить существование значения", "Найти строку"]
+
+EmailLib:
+["Выгрузить сообщение из почты", "Вывести письма в консоль", "Вывести письма в файл", 
+"Отправить письмо", "Перенести письма в папку на почте"]
+
+MessengerLib:
+["Отправить контакт в чат", "Скачать файл из чата", "Отправить файл в чат",
+"Отправить сообщение в чат", "Отправить фото в чат"]
+
+RDPLib:
+["Кликнуть по элементу", "Проверить существование элемента", "Ввести текст в элемент", 
+"Поиск элемента", "Считать текст из элемента", "Ожидать появление/сокрытие элемента", 
+"Кликнуть по изображению", "Кликнуть по тексту на экране"]
+"""
