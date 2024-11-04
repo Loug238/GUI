@@ -16,7 +16,9 @@ from PyQt5.QtWidgets import (
     QMainWindow,
     QStatusBar,
     QFormLayout,
-    QMenu
+    QMenu,
+    QFrame,
+    QSizePolicy
 )
 from PyQt5.QtCore import Qt
 from Activities_list import *
@@ -176,6 +178,7 @@ class App(QMainWindow):
 
         # Добавляем список активностей под кнопкой
         button_layout.addWidget(self.RDPLib_list)
+        button_layout.addStretch()
 
         # Добавление виджета кнопок в область прокрутки
         self.scroll_area.setWidget(button_widget)
@@ -188,13 +191,9 @@ class App(QMainWindow):
 
         self.main_layout.addLayout(left_layout)
 
-    # def toggle_DataTableLib(self):
-    #     """Переключение видимости опций таблицы"""
-    #     current_visibility = self.DataTableLib_list.isVisible()
-    #     self.DataTableLib_list.setVisible(not current_visibility)
 
     def toggle_list(self, list_widget):
-        """Переключение видимости списка"""
+        """Переключение видимости активностей в папке"""
         current_visibility = list_widget.isVisible()
         list_widget.setVisible(not current_visibility)
 
@@ -318,24 +317,3 @@ class Element(QWidget):
         return self.function(*self.arguments)
 
 
-
-"""
-DataTableLib: 
-["Получить значение из таблицы", "Заменить значение из таблицы", 
-"Добавить столбец к таблице", "Добавить строчку к таблице", "Удалить все строчки из таблицы", 
-"Удалить строку из таблицы", Удалить столбец из таблицы, "Отсортировать таблицу по столбцу",
-"Соединить таблицы", "Найти строки по SQL-запросу", "Проверить существование значения", "Найти строку"]
-
-EmailLib:
-["Выгрузить сообщение из почты", "Вывести письма в консоль", "Вывести письма в файл", 
-"Отправить письмо", "Перенести письма в папку на почте"]
-
-MessengerLib:
-["Отправить контакт в чат", "Скачать файл из чата", "Отправить файл в чат",
-"Отправить сообщение в чат", "Отправить фото в чат"]
-
-RDPLib:
-["Кликнуть по элементу", "Проверить существование элемента", "Ввести текст в элемент", 
-"Поиск элемента", "Считать текст из элемента", "Ожидать появление/сокрытие элемента", 
-"Кликнуть по изображению", "Кликнуть по тексту на экране"]
-"""
