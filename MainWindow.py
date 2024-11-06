@@ -17,6 +17,7 @@ from PyQt5.QtWidgets import (
     QStatusBar,
     QFormLayout,
     QMenu,
+    QGridLayout
 )
 
 import Activities_list
@@ -62,6 +63,8 @@ class App(QMainWindow):
         # Поле поиска
         self.search_box = QLineEdit()
         self.search_box.setPlaceholderText("Поиск активностей")
+        self.search_box.textChanged.connect(
+            self.filter_activities)  # подключение сигнала изменения текста к фильтрации
 
         # Создание области прокрутки
         self.scroll_area = QScrollArea()
@@ -90,116 +93,33 @@ class App(QMainWindow):
         button_layout.setSpacing(0)  # убирает промежутки между кнопками
 
         # Создание кнопок-папок
-        self.button_DataTableLib = QPushButton("Таблица")
-        self.button_DataTableLib.clicked.connect(
-            lambda: self.toggle_list(self.DataTableLib_list)
-        )
-        button_layout.addWidget(self.button_DataTableLib)
+        self.create_activity_button(button_layout, "Таблица", [
+            "Получить значение из таблицы", "Заменить значение из таблицы",
+            "Добавить столбец к таблице", "Добавить строчку к таблице",
+            "Удалить все строчки из таблицы", "Удалить строку из таблицы",
+            "Удалить столбец из таблицы", "Отсортировать таблицу по столбцу",
+            "Соединить таблицы", "Найти строки по SQL-запросу",
+            "Проверить существование значения", "Найти строку"
+        ])
 
-        # Список элементов для кнопки "Таблица"
-        self.DataTableLib_list = QListWidget()
-        self.DataTableLib_list.addItems(
-            [
-                "Получить значение из таблицы",
-                "Заменить значение из таблицы",
-                "Добавить столбец к таблице",
-                "Добавить строчку к таблице",
-                "Удалить все строчки из таблицы",
-                "Удалить строку из таблицы",
-                "Удалить столбец из таблицы",
-                "Отсортировать таблицу по столбцу",
-                "Соединить таблицы",
-                "Найти строки по SQL-запросу",
-                "Проверить существование значения",
-                "Найти строку",
-            ]
-        )
+        self.create_activity_button(button_layout, "Почта", [
+            "Выгрузить сообщение из почты", "Вывести письма в консоль",
+            "Вывести письма в файл", "Отправить письмо",
+            "Перенести письма в папку на почте"
+        ])
 
-        # Обработка двойного клика
-        self.DataTableLib_list.itemDoubleClicked.connect(self.add_element_to_central)
+        self.create_activity_button(button_layout, "Telegram", [
+            "Отправить контакт в чат", "Скачать файл из чата",
+            "Отправить файл в чат", "Отправить сообщение в чат",
+            "Отправить фото в чат"
+        ])
 
-        # Изначально скрываем список активностей
-        self.DataTableLib_list.setVisible(False)
-
-        # Добавляем список активностей под кнопкой
-        button_layout.addWidget(self.DataTableLib_list)
-
-        button_EmailLib = QPushButton("Почта")
-        button_EmailLib.clicked.connect(lambda: self.toggle_list(self.EmailLib_list))
-        button_layout.addWidget(button_EmailLib)
-
-        # Список элементов для кнопки "Почта"
-        self.EmailLib_list = QListWidget()
-        self.EmailLib_list.addItems(
-            [
-                "Выгрузить сообщение из почты",
-                "Вывести письма в консоль",
-                "Вывести письма в файл",
-                "Отправить письмо",
-                "Перенести письма в папку на почте",
-            ]
-        )
-        # Обработка двойного клика
-        self.EmailLib_list.itemDoubleClicked.connect(self.add_element_to_central)
-
-        # Изначально скрываем список активностей
-        self.EmailLib_list.setVisible(False)
-
-        # Добавляем список активностей под кнопкой
-        button_layout.addWidget(self.EmailLib_list)
-
-        button_MessengerLib = QPushButton("Telegram")
-        button_MessengerLib.clicked.connect(
-            lambda: self.toggle_list(self.MessengerLib_list)
-        )
-        button_layout.addWidget(button_MessengerLib)
-
-        # Список элементов для кнопки "Telegram"
-        self.MessengerLib_list = QListWidget()
-        self.MessengerLib_list.addItems(
-            [
-                "Отправить контакт в чат",
-                "Скачать файл из чата",
-                "Отправить файл в чат",
-                "Отправить сообщение в чат",
-                "Отправить фото в чат",
-            ]
-        )
-        # Обработка двойного клика
-        self.MessengerLib_list.itemDoubleClicked.connect(self.add_element_to_central)
-
-        # Изначально скрываем список активностей
-        self.MessengerLib_list.setVisible(False)
-
-        # Добавляем список активностей под кнопкой
-        button_layout.addWidget(self.MessengerLib_list)
-
-        button_RDPLib = QPushButton("RDP")
-        button_RDPLib.clicked.connect(lambda: self.toggle_list(self.RDPLib_list))
-        button_layout.addWidget(button_RDPLib)
-
-        # Список элементов для кнопки "RDP"
-        self.RDPLib_list = QListWidget()
-        self.RDPLib_list.addItems(
-            [
-                "Кликнуть по элементу",
-                "Проверить существование элемента",
-                "Ввести текст в элемент",
-                "Поиск элемента",
-                "Считать текст из элемента",
-                "Ожидать появление/сокрытие элемента",
-                "Кликнуть по изображению",
-                "Кликнуть по тексту на экране",
-            ]
-        )
-        # Обработка двойного клика
-        self.RDPLib_list.itemDoubleClicked.connect(self.add_element_to_central)
-
-        # Изначально скрываем список активностей
-        self.RDPLib_list.setVisible(False)
-
-        # Добавляем список активностей под кнопкой
-        button_layout.addWidget(self.RDPLib_list)
+        self.create_activity_button(button_layout, "RDP", [
+            "Кликнуть по элементу", "Проверить существование элемента",
+            "Ввести текст в элемент", "Поиск элемента",
+            "Считать текст из элемента", "Ожидать появление/сокрытие элемента",
+            "Кликнуть по изображению", "Кликнуть по тексту на экране"
+        ])
 
         # Добавление виджета кнопок в область прокрутки
         self.scroll_area.setWidget(button_widget)
@@ -213,6 +133,54 @@ class App(QMainWindow):
         self.main_layout.addLayout(left_layout)
         self.addSeparator()
         button_layout.addStretch()
+
+    def create_activity_button(self, layout, title, activities):
+        """Создание кнопки и списка активностей"""
+        button = QPushButton(title)
+
+        list_widget = QListWidget()
+        list_widget.addItems(activities)
+
+        # Обработка двойного клика
+        list_widget.itemDoubleClicked.connect(self.add_element_to_central)
+
+        # Изначально скрываем список активностей
+        list_widget.setVisible(False)
+
+        button.clicked.connect(lambda: self.toggle_list(list_widget))
+
+        layout.addWidget(button)
+        layout.addWidget(list_widget)
+
+    def filter_activities(self):
+        """Фильтр активностей по введенному тексту"""
+        search_term = self.search_box.text().lower()  # Получаем текст из поля поиска и приводим к нижнему регистру
+
+        # Поиск кнопок
+        for button in self.findChildren(QPushButton):
+            list_widget = button.nextInFocusChain()
+            if isinstance(list_widget, QListWidget):
+                match_found = False  # Переменная для отслеживания наличия совпадений
+
+                for i in range(list_widget.count()):
+                    item = list_widget.item(i)
+                    if search_term in item.text().lower():  # Проверяем наличие совпадения
+                        match_found = True
+                        item.setHidden(False)  # Показываем элемент, если он соответствует запросу
+                    else:
+                        item.setHidden(True)  # Скрываем элемент, если он не соответствует запросу
+
+                if match_found:
+                    list_widget.show()  # Показываем список, если есть совпадения
+                else:
+                    list_widget.hide()  # Скрываем список, если нет совпадений
+
+        # Если строка поиска пустая, скрываем все списки активностей
+        if not search_term:
+            for button in self.findChildren(QPushButton):
+                list_widget = button.nextInFocusChain()
+                if isinstance(list_widget, QListWidget):
+                    list_widget.hide()
 
     def load_styles(self):
         """Загрузка стилей из файла."""
@@ -231,6 +199,8 @@ class App(QMainWindow):
 
         self.central_widget = QWidget()
         self.central_layout = QVBoxLayout(self.central_widget)
+        self.central_layout.setContentsMargins(0, 0, 0, 0)  # # убирает отступы вокруг макета
+        self.central_layout.setSpacing(0)  # убирает промежутки между элементами
 
         self.central_scroll_area.setWidget(self.central_widget)
         self.main_layout.addWidget(self.central_scroll_area)
@@ -371,5 +341,24 @@ class Element(QWidget):
     def perform(self):
         return self.function(*self.arguments)
 
-
+# Класс для блоков в центральной области
+# class DraggableButton(QPushButton):
+#     def __init__(self, text):
+#         super().__init__(text)
+#         self.setAcceptDrops(True)
+#         self.dragging = False
+#
+#     def mousePressEvent(self, event):
+#         if event.button() == Qt.LeftButton:
+#             self.dragging = True
+#             self.startPos = event.pos()
+#
+#     def mouseMoveEvent(self, event):
+#         if self.dragging:
+#             if (event.pos() - self.startPos).manhattanLength() > QApplication.startDragDistance():
+#                 self.move(event.globalPos() - self.rect().center())
+#
+#     def mouseReleaseEvent(self, event):
+#         if event.button() == Qt.LeftButton:
+#             self.dragging = False
 
