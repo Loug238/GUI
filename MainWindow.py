@@ -17,12 +17,13 @@ from PyQt5.QtWidgets import (
     QStatusBar,
     QFormLayout,
     QMenu,
-    QGridLayout
+    QGridLayout,
+    QListWidgetItem
 )
 
 import Activities_list
-
-from PyQt5.QtCore import Qt, pyqtSignal
+import styles
+from PyQt5.QtCore import Qt, pyqtSignal, QSize
 
 # from Activities_list import activities_list
 from DataTableLib import *
@@ -34,7 +35,8 @@ from RDPLib import *
 class App(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.load_styles()
+        self.setStyleSheet(styles.dark_style_sheet) # Задается стиль
+
         # Настройки всплывающего окна
         self.setWindowTitle("GUI")
         self.setGeometry(100, 100, 1200, 800)
@@ -53,7 +55,7 @@ class App(QMainWindow):
         self.init_right_part()
         self.init_status_bar()
 
-        self.list_elements = []  # список элементов в центральной области
+        self.list_elements = []  # Список элементов в центральной области
 
     def init_left_part(self):
         """Инициализация левой части интерфейса"""
@@ -64,14 +66,14 @@ class App(QMainWindow):
         self.search_box = QLineEdit()
         self.search_box.setPlaceholderText("Поиск активностей")
         self.search_box.textChanged.connect(
-            self.filter_activities)  # подключение сигнала изменения текста к фильтрации
+            self.filter_activities)  # Подключение сигнала изменения текста к фильтрации
 
         # Создание области прокрутки
         self.scroll_area = QScrollArea()
         self.scroll_area.setWidgetResizable(True)
         self.scroll_area.setVerticalScrollBarPolicy(
             Qt.ScrollBarAlwaysOn
-        )  # вертикальная полоса прокрутки всегда видимая
+        )  # Вертикальная полоса прокрутки всегда видимая
 
         # Создание виджета для кнопок
         button_widget = QWidget()
@@ -89,8 +91,8 @@ class App(QMainWindow):
         button_widget.setMinimumHeight(250)
         button_widget.setMaximumWidth(400)
 
-        button_layout.setContentsMargins(0, 0, 0, 0)  # убирает отступы вокруг макета
-        button_layout.setSpacing(0)  # убирает промежутки между кнопками
+        button_layout.setContentsMargins(11, 11, 11, 11)  # Убирает отступы вокруг макета
+        #button_layout.setSpacing(0)  # Убирает промежутки между кнопками
 
         # Создание кнопок-папок
         self.create_activity_button(button_layout, "Таблица", [
@@ -139,7 +141,19 @@ class App(QMainWindow):
         button = QPushButton(title)
 
         list_widget = QListWidget()
-        list_widget.addItems(activities)
+
+        for activity in activities:
+            item = QListWidgetItem(activity)
+            item.setText(activity)
+            list_widget.addItem(item)
+
+            # Добавляем разделитель между элементами списка
+            separator_item = QListWidgetItem()
+            separator_item.setFlags(Qt.NoItemFlags)  # Отключение возможности взаимодействия с разделителем
+            separator_item.setSizeHint(QSize(0, 1))  # Высота разделителя
+            list_widget.addItem(separator_item)
+
+            list_widget.setItemWidget(separator_item, QWidget())  # Добавление пустого виджета для разделителя
 
         # Обработка двойного клика
         list_widget.itemDoubleClicked.connect(self.add_element_to_central)
@@ -154,7 +168,7 @@ class App(QMainWindow):
 
     def filter_activities(self):
         """Фильтр активностей по введенному тексту"""
-        search_term = self.search_box.text().lower()  # Получаем текст из поля поиска и приводим к нижнему регистру
+        search_term = self.search_box.text().lower()  # Получение текста из поля поиска и приведение к нижнему регистру
 
         # Поиск кнопок
         for button in self.findChildren(QPushButton):
@@ -164,28 +178,23 @@ class App(QMainWindow):
 
                 for i in range(list_widget.count()):
                     item = list_widget.item(i)
-                    if search_term in item.text().lower():  # Проверяем наличие совпадения
+                    if search_term in item.text().lower():  # Проверка наличия совпадения
                         match_found = True
-                        item.setHidden(False)  # Показываем элемент, если он соответствует запросу
+                        item.setHidden(False)  # Отображение элемента, если он соответствует запросу
                     else:
-                        item.setHidden(True)  # Скрываем элемент, если он не соответствует запросу
+                        item.setHidden(True)  # Сокрытие элемента, если он не соответствует запросу
 
                 if match_found:
-                    list_widget.show()  # Показываем список, если есть совпадения
+                    list_widget.show()  # Отображение списка, если есть совпадения
                 else:
-                    list_widget.hide()  # Скрываем список, если нет совпадений
+                    list_widget.hide()  # Сокрытие списка, если нет совпадений
 
-        # Если строка поиска пустая, скрываем все списки активностей
+        # Если строка поиска пустая, все списки активностей скрываются
         if not search_term:
             for button in self.findChildren(QPushButton):
                 list_widget = button.nextInFocusChain()
                 if isinstance(list_widget, QListWidget):
                     list_widget.hide()
-
-    def load_styles(self):
-        """Загрузка стилей из файла."""
-        with open("static\\CSS\\style.css", "r") as style_file:
-            self.setStyleSheet(style_file.read())
 
     def toggle_list(self, list_widget):
         """Переключение видимости списка"""
@@ -199,8 +208,8 @@ class App(QMainWindow):
 
         self.central_widget = QWidget()
         self.central_layout = QVBoxLayout(self.central_widget)
-        self.central_layout.setContentsMargins(0, 0, 0, 0)  # # убирает отступы вокруг макета
-        self.central_layout.setSpacing(0)  # убирает промежутки между элементами
+        self.central_layout.setContentsMargins(0, 0, 0, 0)  # Убирает отступы вокруг макета
+        self.central_layout.setSpacing(0)  # Убирает промежутки между элементами
 
         self.central_scroll_area.setWidget(self.central_widget)
         self.main_layout.addWidget(self.central_scroll_area)
@@ -253,28 +262,28 @@ class App(QMainWindow):
             # Удаляем элемент из списка и виджета
             if element in self.list_elements:
                 self.list_elements.remove(element)
-                widget.deleteLater()  # Удаляем виджет из центральной части
+                widget.deleteLater()  # Удаление виджета из центральной части
 
     def init_right_part(self):
         """Инициализация правой части интерфейса"""
         self.form_widget = QWidget()
         self.form_layout = QFormLayout(self.form_widget)
 
-        # Добавляем метку с описанием
+        # Добавление метки с описанием
         self.info_label = QLabel(
             "Здесь будет отображаться информация о выбранной активности."
         )
         self.info_label.setWordWrap(True)
         self.form_layout.addRow(self.info_label)
 
-        # Устанавливаем минимальный размер для правой части
+        # Установка минимального размера для правой части
         self.form_widget.setMinimumWidth(250)
         self.form_widget.setMaximumWidth(400)
 
         right_layout = QVBoxLayout()
         right_layout.addWidget(self.form_widget)
 
-        # Добавляем разделитель
+        # Добавление разделителя
         self.addSeparator()
         self.main_layout.addLayout(right_layout)
 
@@ -324,7 +333,7 @@ class App(QMainWindow):
 
 
 class Element(QWidget):
-    clicked = pyqtSignal(object)  # определяем сигнал, который принимает один объект
+    clicked = pyqtSignal(object)  # Определение сигнала, который принимает один объект
 
     def __init__(self, element_id, name, function, arguments):
         super().__init__()
@@ -335,7 +344,7 @@ class Element(QWidget):
 
     def mousePressEvent(self, event):
         """Обработка клика на элемент"""
-        # Испускаем сигнал, передавая self.function
+        # Испускание сигнала, передаваемого self.function
         self.clicked.emit(self.function)
 
     def perform(self):
