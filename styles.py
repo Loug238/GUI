@@ -1,3 +1,14 @@
+# Рарус
+rarus_style_sheet = """
+* {
+    font-family: 'Verdana';
+    font-size: 14px;
+    font-weight: 900;
+    color: #2e329e;
+}
+"""
+
+
 
 # Темная тема
 dark_style_sheet = """

@@ -1,5 +1,7 @@
 import sys
 import inspect
+from cProfile import label
+
 from PyQt5.QtWidgets import (
     QApplication,
     QWidget,
@@ -35,7 +37,7 @@ from RDPLib import *
 class App(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setStyleSheet(styles.dark_style_sheet) # Задается стиль
+        self.setStyleSheet(styles.rarus_style_sheet) # Задается стиль
 
         # Настройки всплывающего окна
         self.setWindowTitle("GUI")
@@ -43,6 +45,7 @@ class App(QMainWindow):
 
         # Создание центрального виджета
         central_widget = QWidget()
+        central_widget.setStyleSheet("background-color: #2e329e;")
         self.setCentralWidget(central_widget)
 
         # Основной макет
@@ -59,40 +62,46 @@ class App(QMainWindow):
 
     def init_left_part(self):
         """Инициализация левой части интерфейса"""
-        # Заголовок
-        self.title = QLabel("Активности")
+        # Создание левой области
+        left_part = QWidget()
+        left_part.setMaximumWidth(350)
+        left_layout = QVBoxLayout()
+        left_layout.setContentsMargins(0, 0, 0, 0)
+        left_layout.setSpacing(0)
+
+        # Создание верхнего виджета для поля поиска
+        upper_widget = QWidget()
+        upper_widget.setMinimumHeight(60)
+        upper_widget.setMaximumHeight(60)
+        upper_widget.setStyleSheet("background-color: #aec9ff; border-top-left-radius: 30px; border-top-right-radius: 30px;")
 
         # Поле поиска
         self.search_box = QLineEdit()
+        self.search_box.setMinimumHeight(30)
+        self.search_box.setMaximumHeight(30)
         self.search_box.setPlaceholderText("Поиск активностей")
+        self.search_box.setStyleSheet("background-color: white; border-radius: 11px;")
         self.search_box.textChanged.connect(
             self.filter_activities)  # Подключение сигнала изменения текста к фильтрации
+
+        # Добавление поля поиска в верхнюю часть
+        upper_layout = QVBoxLayout()
+        upper_layout.addWidget(self.search_box)
+        upper_widget.setLayout(upper_layout)
 
         # Создание области прокрутки
         self.scroll_area = QScrollArea()
         self.scroll_area.setWidgetResizable(True)
+        self.scroll_area.setStyleSheet("background-color: white; border-bottom-left-radius: 30px; border-bottom-right-radius: 30px;")
         self.scroll_area.setVerticalScrollBarPolicy(
-            Qt.ScrollBarAlwaysOn
-        )  # Вертикальная полоса прокрутки всегда видимая
+            Qt.ScrollBarAlwaysOff
+        )  # Вертикальная полоса прокрутки всегда видимая (временно)
 
         # Создание виджета для кнопок
         button_widget = QWidget()
-        button_layout = QVBoxLayout(button_widget)
-
-        # нужно сделать, чтобы все элементы были в одном подокне,
-        # сейчас они размещаются отдельно, чтобы не нужно было
-        # устанавливать размеры для каждого элемента отдельно
-        self.title.setMinimumWidth(250)
-        self.title.setMaximumWidth(400)
-        self.search_box.setMinimumWidth(250)
-        self.search_box.setMaximumWidth(400)
-        self.scroll_area.setMinimumWidth(250)
-        self.scroll_area.setMaximumWidth(400)
-        button_widget.setMinimumHeight(250)
-        button_widget.setMaximumWidth(400)
+        button_layout = QVBoxLayout()
 
         button_layout.setContentsMargins(11, 11, 11, 11)  # Убирает отступы вокруг макета
-        #button_layout.setSpacing(0)  # Убирает промежутки между кнопками
 
         # Создание кнопок-папок
         self.create_activity_button(button_layout, "Таблица", [
@@ -124,15 +133,17 @@ class App(QMainWindow):
         ])
 
         # Добавление виджета кнопок в область прокрутки
+        button_widget.setLayout(button_layout)
         self.scroll_area.setWidget(button_widget)
 
-        # Добавление элементов в левую часть макета
-        left_layout = QVBoxLayout()
-        left_layout.addWidget(self.title)
-        left_layout.addWidget(self.search_box)
+        # Сборка левой области
+        left_layout.addWidget(upper_widget)
         left_layout.addWidget(self.scroll_area)
+        left_part.setLayout(left_layout)
 
-        self.main_layout.addLayout(left_layout)
+        self.main_layout.addWidget(left_part)
+
+        # Добавление разделителя
         self.addSeparator()
         button_layout.addStretch()
 
@@ -203,8 +214,36 @@ class App(QMainWindow):
 
     def init_central_part(self):
         """Инициализация центральной части интерфейса"""
+        # Создание центральной области
+        central_part = QWidget()
+        central_layout = QVBoxLayout()
+        central_layout.setContentsMargins(0, 0, 0, 0)
+        central_layout.setSpacing(0)
+
+        # Создание верхнего виджета для заголовка области
+        upper_widget = QWidget()
+        upper_widget.setMinimumHeight(60)
+        upper_widget.setMaximumHeight(60)
+        upper_widget.setStyleSheet(
+            "background-color: #aec9ff; border-top-left-radius: 30px; border-top-right-radius: 30px;")
+
+        # Заголовок области
+        label_string = QLabel("Выбранные активности")
+        label_string.setMinimumHeight(30)
+        label_string.setMaximumHeight(30)
+        label_string.setAlignment(Qt.AlignCenter)
+        label_string.setStyleSheet("background-color: white; border-radius: 11px;")
+
+        # Добавление заголовка в верхнюю часть
+        upper_layout = QVBoxLayout()
+        upper_layout.addWidget(label_string)
+        upper_widget.setLayout(upper_layout)
+
+        # Создание области отображения выбранных активностей
         self.central_scroll_area = QScrollArea()
         self.central_scroll_area.setWidgetResizable(True)
+        self.central_scroll_area.setStyleSheet(
+            "background-color: white; border-bottom-left-radius: 30px; border-bottom-right-radius: 30px;")
 
         self.central_widget = QWidget()
         self.central_layout = QVBoxLayout(self.central_widget)
@@ -212,7 +251,13 @@ class App(QMainWindow):
         self.central_layout.setSpacing(0)  # Убирает промежутки между элементами
 
         self.central_scroll_area.setWidget(self.central_widget)
-        self.main_layout.addWidget(self.central_scroll_area)
+
+        # Сборка центральной области
+        central_layout.addWidget(upper_widget)
+        central_layout.addWidget(self.central_scroll_area)
+        central_part.setLayout(central_layout)
+
+        self.main_layout.addWidget(central_part)
 
     def add_element_to_central(self, item):
         """Добавление элемента в центральную часть"""
@@ -266,7 +311,36 @@ class App(QMainWindow):
 
     def init_right_part(self):
         """Инициализация правой части интерфейса"""
+        # Создание правой области
+        right_part = QWidget()
+        right_part.setMaximumWidth(350)
+        right_part.setMinimumWidth(350)
+        right_layout = QVBoxLayout()
+        right_layout.setContentsMargins(0, 0, 0, 0)
+        right_layout.setSpacing(0)
+
+        # Создание верхнего виджета для заголовка области
+        upper_widget = QWidget()
+        upper_widget.setMinimumHeight(60)
+        upper_widget.setMaximumHeight(60)
+        upper_widget.setStyleSheet(
+            "background-color: #aec9ff; border-top-left-radius: 30px; border-top-right-radius: 30px;")
+
+        # Заголовок области
+        label_string = QLabel("Информация об активности")
+        label_string.setMinimumHeight(30)
+        label_string.setMaximumHeight(30)
+        label_string.setAlignment(Qt.AlignCenter)
+        label_string.setStyleSheet("background-color: white; border-radius: 11px;")
+
+        # Добавление заголовка в верхнюю часть
+        upper_layout = QVBoxLayout()
+        upper_layout.addWidget(label_string)
+        upper_widget.setLayout(upper_layout)
+
+        # Создание области информации об активности
         self.form_widget = QWidget()
+        self.form_widget.setStyleSheet("background-color: white; border-bottom-left-radius: 30px; border-bottom-right-radius: 30px;")
         self.form_layout = QFormLayout(self.form_widget)
 
         # Добавление метки с описанием
@@ -280,30 +354,65 @@ class App(QMainWindow):
         self.form_widget.setMinimumWidth(250)
         self.form_widget.setMaximumWidth(400)
 
-        right_layout = QVBoxLayout()
+        # Сборка правой области
+        right_layout.addWidget(upper_widget)
         right_layout.addWidget(self.form_widget)
+        right_part.setLayout(right_layout)
 
         # Добавление разделителя
         self.addSeparator()
         self.main_layout.addLayout(right_layout)
 
+        self.main_layout.addWidget(right_part)
+
     def addSeparator(self):
         """Добавление разделителя между рабочими зонами."""
         separator = QWidget()
-        separator.setFixedWidth(2)
+        separator.setFixedWidth(6)
         separator.setStyleSheet(
-            "background-color: #cccccc;"
-        )  # серый цвет для разделителя
+            "background-color: #fca115; border-radius: 3px;"
+        )
         self.main_layout.addWidget(separator)
 
     def init_tools_panel(self):
         """Инициализация панели инструментов"""
         toolbar = QToolBar("Main Toolbar")
+        toolbar.setStyleSheet("background-color: #aec9ff;")
         self.addToolBar(toolbar)
 
         button_action = QPushButton("Пример кнопки")
+        button_action.setFixedSize(160, 40)
+        button_action.setStyleSheet("margin: 5px; background-color: white; border-radius: 7px;")
         button_action.clicked.connect(self.example_action)
         toolbar.addWidget(button_action)
+
+        # Добавление разделителя
+        separator1 = QWidget()
+        separator1.setFixedWidth(3)
+        separator1.setStyleSheet(
+            "background-color: #fca115; border-radius: 1px;")
+        toolbar.addWidget(separator1)
+
+        # Кнопка отображения переменных
+        button_variables = QPushButton("Отображение переменных")
+        button_variables.setFixedSize(250, 40)
+        button_variables.setStyleSheet("margin: 5px; background-color: white; border-radius: 7px;")
+        # button_variables.cliked.connect()
+        toolbar.addWidget(button_variables)
+
+        # Добавление разделителя
+        separator2 = QWidget()
+        separator2.setFixedWidth(3)
+        separator2.setStyleSheet(
+            "background-color: #fca115; border-radius: 1px;")
+        toolbar.addWidget(separator2)
+
+        # Кнопка отображения информации об активностях
+        button_right_part = QPushButton("Отображение правой части")
+        button_right_part.setFixedSize(250, 40)
+        button_right_part.setStyleSheet("margin: 5px; background-color: white; border-radius: 7px;")
+        # button_right_part.clicked.connect()
+        toolbar.addWidget(button_right_part)
 
     def init_status_bar(self):
         """Инициализация статус-бара"""
